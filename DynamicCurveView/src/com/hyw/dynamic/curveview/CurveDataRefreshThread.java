@@ -34,7 +34,7 @@ public class CurveDataRefreshThread extends Thread {
 
 	private int MAXSIZEOFDATA = 200;
 	private int index = 0;
-	private Bitmap bm1, bm2;
+	private Bitmap bm1;
 
 	private boolean initFlag = false;
 	private int fpsCount = 0;
@@ -53,7 +53,6 @@ public class CurveDataRefreshThread extends Thread {
 		baseLine = this.dynamicCurveView.getHeight() / 2;
 
 		bm1 = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
-		bm2 = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
 
 		dataList = new ArrayList<DataPoint>(MAXSIZEOFDATA);
 		initFlag = true;
@@ -83,7 +82,6 @@ public class CurveDataRefreshThread extends Thread {
 
 	private void refreshCurve() {
 		fpsCount++;
-		bm1 = bm2;
 		Paint mBGPaint = new Paint();
 		mBGPaint.setColor(Color.BLACK);
 		Canvas canvas = new Canvas(bm1);
@@ -133,24 +131,18 @@ public class CurveDataRefreshThread extends Thread {
 		canvas.save(Canvas.ALL_SAVE_FLAG);
 		canvas.restore();
 
-		final Bitmap viewBm = Bitmap.createBitmap(viewWidth, viewHeight,
-				Config.ARGB_8888);
-		final Canvas cvs = new Canvas(viewBm);
 		canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG
 				| Paint.FILTER_BITMAP_FLAG));
-		cvs.drawBitmap(bm1, 0, 0, null);
-		cvs.drawBitmap(bm2, bm1.getWidth(), 0, null);
 		Canvas viewRender = null;
 		try {
 			viewRender = dynamicCurveView.getHolder().lockCanvas();
 			if (viewRender != null) {
-				viewRender.drawBitmap(viewBm, 0, 0, null);
+				viewRender.drawBitmap(bm1, 0, 0, null);
 			}
 		} finally {
 			if (viewRender != null)
 				dynamicCurveView.getHolder().unlockCanvasAndPost(viewRender);
 		}
-		viewBm.recycle();
 	}
 
 	@SuppressLint("HandlerLeak")
